@@ -1,0 +1,94 @@
+.App {
+
+}
+
+.App-logo {
+  pointer-events: none;
+}
+
+.bg-thin-dark {
+  background: #27293d;
+}
+
+.text-green {
+  color: rgb(39,174,96) !important;
+}
+
+.text-red {
+  color: rgb(244,67,54) !important;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  background-color: #27293d !important;
+  font-weight: 600;
+}
+
+th span span svg {
+  width: .85rem;
+  height: .85rem;
+  stroke-width: 3;
+  margin-top: -.125rem;
+}
+
+.btn-sm svg {
+  width: .85rem;
+  height: .85rem;
+  margin-top: -.125rem;
+}
+
+.avatar.pool-token-0 {
+  background-color: #27293d;
+  width: 1.75rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  border-radius: 100%;
+  z-index: 1;
+  position: relative;
+}
+
+.avatar.pool-token-1 {
+  background-color: #27293d;
+  width: 1.75rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  border-radius: 100%;
+  margin-left: -.4rem;
+  margin-right: .75rem;
+}
+
+.avatar.pool-token {
+  background-color: #27293d;
+  width: 1.25rem;
+  min-width: 1.25rem;
+  min-height: 1.25rem;
+  border-radius: 100%;
+  margin-right: .5rem;
+}
+
+.avatar.token {
+  background-color: #27293d !important;
+  width: 2.5rem !important;
+  min-width: 2.5rem !important;
+  height: 2.5rem !important;
+  min-height: 2.5rem !important;
+  border-radius: 100% !important;
+}
+
+.btn-group > .dropdown-button.btn:not(:last-child):not(.dropdown-toggle),
+.btn-group > .dropdown-button.btn-group:not(:last-child) > .btn {
+  border-top-right-radius: .2857rem !important;
+  border-bottom-right-radius: .2857rem !important;
+}
+
+.react-bs-table-no-data {
+  text-align: center;
+  padding: 2rem 1rem !important;
+}
+
+.react-notification-alert-container.copy div div {
+  max-width: 15rem;
+}
+
+.react-notification-alert-container.copy .alert.alert-with-icon {
+  padding-left: 3.5rem;
+}
