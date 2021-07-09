@@ -18,29 +18,49 @@ import NotificationAlert from 'react-notification-alert';
 import Loader from 'react-loader-spinner';
 
 const Token = props => {
+  // address from query string parameter
   const address = props.match && props.match.params && props.match.params.address;
+  // token's pools data
   const [poolsData, setPoolsData] = useState([]);
+  // first page of data loaded parameter
   const [loaded, setLoaded] = useState(false);
+  // first time all page of data loaded parameter
   const [fullLoaded, setFullLoaded] = useState(false);
+  // loading data state
   const [loading, setLoading] = useState(false);
+
+  // list of chart duration
   const timeRanges = ['7d', '30d'];
 
+  // chart duration of liquidity
   const [liquidityTimeRange, setLiquidityTimeRange] = useState('30d');
+  // chart duration of volume
   const [volumeTimeRange, setVolumeTimeRange] = useState('30d');
+  // index of date that user cursor focus on liquidity chart
   const [liquidityDateIndexFocus, setLiquidityDateIndexFocus] = useState(null);
+  // index of date that user cursor focus on volume chart
   const [volumeDateIndexFocus, setVolumeDateIndexFocus] = useState(null);
 
+  // list of num row per page
   const perPageSizes = [5, 10, 25, 100];
 
+  // pools sort info
   const [poolsSort, setPoolsSort] = useState({ field: 'total_liquidity_quote', direction: 'desc' });
+  // word for filter pools by pair/tokens/address
   const [poolsFilter, setPoolsFilter] = useState('');
+  // num pools per table's page
   const [poolsPerPage, setPoolsPerPage] = useState(10);
+  // state of num pools per page dropdown open
   const [poolsPerPageDropdownOpen, setPoolsPerPageDropdownOpen] = useState(false);
+  // toggle function of num pools per page dropdown
   const togglePoolsPerPageDropdown = () => setPoolsPerPageDropdownOpen(!poolsPerPageDropdownOpen);
+  // pools table page selected
   const [poolsPage, setPoolsPage] = useState(0);
 
+  // notification reference
   const notificationAlertRef = useRef(null);
 
+  // responsive width
   const useWindowSize = () => {
     const [size, setSize] = useState(null);
     useLayoutEffect(() => {
@@ -53,13 +73,16 @@ const Token = props => {
   };
   const width = useWindowSize();
 
+  // setup chart.js default options
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
   }
 
+  // request DEX token's pools: '/{chain_id}/xy=k/{dexname}/tokens/address/{address}/'
   useEffect(() => {
     const getData = async () => {
       const data = poolsData ? poolsData : [];
+      // start pagination
       let size = 0;
       let page = 0;
       let hasMore = true;
@@ -73,6 +96,7 @@ const Token = props => {
                 data[size++] = response.data.items[i];
               }
               setPoolsData(data);
+              // set first page of data loaded
               setLoaded(true);
             }
             hasMore = response.data.pagination && response.data.pagination.has_more;
@@ -84,15 +108,19 @@ const Token = props => {
         } catch (error) {}
         page++;
       }
+      // end pagination
       data.length = size;
       setPoolsData(data);
+      // set first time all page of data loaded
       setFullLoaded(true);
     };
     getData();
+    // interval request (60 sec)
     const interval = setInterval(() => getData(), 60 * 1000);
     return () => clearInterval(interval);
   }, [address, poolsData]);
 
+  // ecosystem data from each dimension aggregation
   const ecosystemData = poolsData && [{
     total_swaps_24h: _.sumBy(poolsData, 'swap_count_24h'),
     total_fees_24h: _.sumBy(poolsData, 'fee_24h_quote'),
@@ -103,6 +131,7 @@ const Token = props => {
     price_chart_7d: _.orderBy(Object.entries(_.groupBy(poolsData.filter(poolData => poolData.token_0 && poolData.token_1).filter(poolData => poolData.token_0.contract_address === address || poolData.token_1.contract_address === address).flatMap(poolData => poolData.price_timeseries_7d.map(priceData => { return { ...priceData, price_quote: poolData.token_1.contract_address === address ? priceData.price_of_token1_in_quote_currency : priceData.price_of_token0_in_quote_currency }; })), 'dt')).map(entry => { return { dt: entry[0], price_quote: _.meanBy(entry[1], 'price_quote') }; }), ['dt'], ['asc']),
   }];
 
+  // normalize and filter pools data
   const filterredPoolsData = poolsData && poolsData.filter(poolData => poolData.token_0 && poolData.token_1).map((poolData, i) => {
     return {
       ...poolData,
@@ -121,15 +150,19 @@ const Token = props => {
     poolData.name.toLowerCase().startsWith(poolsFilter.toLowerCase()) ||
     (poolData.token_0 && ((poolData.token_0.contract_name && poolData.token_0.contract_name.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1) || (poolData.token_0.contract_ticker_symbol && poolData.token_0.contract_ticker_symbol.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1))) ||
     (poolData.token_1 && ((poolData.token_1.contract_name && poolData.token_1.contract_name.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1) || (poolData.token_1.contract_ticker_symbol && poolData.token_1.contract_ticker_symbol.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1)))
-  );
+  ); // filter by user's text input
+
+  // filter pools data on page selected
   const filterredPagePoolsData = filterredPoolsData && filterredPoolsData.filter((poolData, i) => i >= poolsPage * poolsPerPage && i < (poolsPage + 1) * poolsPerPage);
 
   return (
     <div className="my-2 my-md-3 my-lg-4 mx-auto px-0 px-md-3 px-lg-5" style={{ maxWidth: '80rem' }}>
+      {/* notification component */}
       <div className="react-notification-alert-container copy">
         <NotificationAlert ref={notificationAlertRef} />
       </div>
       <Row className="mb-3 mx-1">
+        {/* token information */}
         <Col lg="6" md="7" xs="12">
           {poolsData && _.slice(poolsData.filter(poolData => poolData.token_0 && poolData.token_1).flatMap(poolData => [poolData.token_0, poolData.token_1]).filter(tokenData => tokenData.contract_address === address), 0, 1).map((tokenData, key) => (
             <div key={key} className="d-flex align-items-center">
@@ -167,6 +200,7 @@ const Token = props => {
             </div>
           ))}
         </Col>
+        {/* link to go to do actions on DEX and etherscan.io */}
         <Col lg="6" md="5" xs="12" className="d-flex align-items-center justify-content-start justify-content-md-end">
           <NavLink href={`https://exchange.sushiswapclassic.org/#/add/${address}/ETH`} target="_blank" rel="noopener noreferrer" className="pl-0 pl-md-2 pr-2">{"Add Liquidity"}</NavLink>
           <NavLink href={`https://exchange.sushiswapclassic.org/#/swap?inputCurrency=${address}`} target="_blank" rel="noopener noreferrer" className="px-2">{"Trade"}</NavLink>
@@ -175,6 +209,7 @@ const Token = props => {
       </Row>
       {loaded && ecosystemData && ecosystemData[0] && (
         <Row className="mt-3 mx-1">
+          {/* liquidity chart */}
           <Col lg="6" md="12" xs="12">
             <Card className="card-chart">
               <CardHeader>
@@ -267,6 +302,7 @@ const Token = props => {
               </CardBody>
             </Card>
           </Col>
+          {/* volume chart */}
           <Col lg="6" md="12" xs="12">
             <Card className="card-chart">
               <CardHeader>
@@ -354,6 +390,7 @@ const Token = props => {
               </CardBody>
             </Card>
           </Col>
+          {/* statistical data */}
           <Col lg="12" md="12" xs="12" className={`text-${width <= 575 ? 'center' : 'left'} mb-4`}>
             {ecosystemData && ecosystemData[0] && (
               <>
@@ -384,6 +421,7 @@ const Token = props => {
       )}
       <Row className="mt-3 mx-1">
         <Col lg="12" md="12" xs="12">
+          {/* token's pools title and filter box */}
           <Row className="mb-2">
             <Col lg="6" md="6" xs="12" className="d-flex align-items-center">
               <h3 className="d-flex align-items-center mb-0" style={{ fontWeight: 600 }}>
@@ -401,6 +439,7 @@ const Token = props => {
               </Col>
             )}
           </Row>
+          {/* token's pools table */}
           <BootstrapTable
             keyField="rank"
             bordered={false}
@@ -600,6 +639,7 @@ const Token = props => {
               },
             ]}
           />
+          {/* token's pools paginations */}
           {filterredPoolsData && Math.floor(filterredPoolsData.length / perPageSizes[0]) > 0 && (
             <div className={`text-center d-${width <= 575 ? 'block' : 'flex'} align-items-center justify-content-center justify-content-md-end`}>
               {"Rows per page"}

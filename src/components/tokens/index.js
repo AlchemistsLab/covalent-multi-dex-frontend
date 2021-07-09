@@ -10,18 +10,28 @@ import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'react-feather';
 import Loader from 'react-loader-spinner';
 
 const Tokens = props => {
+  // pools data from redux
   const poolsData = useSelector(content => content.data.pools_data);
+  // tokens data from redux
   const tokensData = useSelector(content => content.data.tokens_data);
 
+  // list of num row per page
   const perPageSizes = [5, 10, 25, 100];
 
+  // pools sort info
   const [tokensSort, setTokensSort] = useState({ field: 'total_liquidity_quote', direction: 'desc' });
+  // word for filter tokens by token/address
   const [tokensFilter, setTokensFilter] = useState('');
+  // num tokens per table's page
   const [tokensPerPage, setTokensPerPage] = useState(10);
+  // state of num tokens per page dropdown open
   const [tokensPerPageDropdownOpen, setTokensPerPageDropdownOpen] = useState(false);
+  // toggle function of num tokens per page dropdown
   const toggleTokensPerPageDropdown = () => setTokensPerPageDropdownOpen(!tokensPerPageDropdownOpen);
+  // tokens table page selected
   const [tokensPage, setTokensPage] = useState(0);
 
+  // responsive width
   const useWindowSize = () => {
     const [size, setSize] = useState(null);
     useLayoutEffect(() => {
@@ -34,6 +44,7 @@ const Tokens = props => {
   };
   const width = useWindowSize();
 
+  // normalize and filter tokens data
   const filterredTokensData = tokensData && tokensData.map((tokenData, i) => {
     return {
       ...tokenData,
@@ -51,13 +62,16 @@ const Tokens = props => {
     tokensFilter.toLowerCase() === tokenData.contract_address ||
     tokenData.contract_name.toLowerCase().indexOf(tokensFilter.toLowerCase()) > -1 ||
     tokenData.contract_ticker_symbol.toLowerCase().indexOf(tokensFilter.toLowerCase()) > -1
-  );
+  ); // filter by user's text input
+
+  // filter tokens data on page selected
   const filterredPageTokensData = filterredTokensData && filterredTokensData.filter((tokenData, i) => i >= tokensPage * tokensPerPage && i < (tokensPage + 1) * tokensPerPage);
 
   return (
     <div className="my-2 my-md-3 my-lg-4 mx-auto px-0 px-md-3 px-lg-5" style={{ maxWidth: '80rem' }}>
       <Row className="mt-3 mx-1">
         <Col lg="12" md="12" xs="12">
+          {/* tokens title and filter box */}
           <Row className="mb-2">
             <Col lg="6" md="6" xs="12" className="d-flex align-items-center">
               <h3 className="mb-0" style={{ fontWeight: 600 }}>{"All Tokens"}</h3>
@@ -72,6 +86,7 @@ const Tokens = props => {
               </Col>
             )}
           </Row>
+          {/* tokens table */}
           <BootstrapTable
             keyField="rank"
             bordered={false}
@@ -209,6 +224,7 @@ const Tokens = props => {
               },
             ]}
           />
+          {/* tokens paginations */}
           {filterredTokensData && Math.floor(filterredTokensData.length / perPageSizes[0]) > 0 && (
             <div className={`text-center d-${width <= 575 ? 'block' : 'flex'} align-items-center justify-content-center justify-content-md-end`}>
               {"Rows per page"}

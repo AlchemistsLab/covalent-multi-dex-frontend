@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+// function for remove decimals end with 000...
 export const numberOptimizeDecimal = number => {
 	if (typeof number === 'number') {
 		number = number.toString();
@@ -29,6 +30,12 @@ export const numberOptimizeDecimal = number => {
 	return '';
 };
 
+/***************
+ * function for calculate change from list of object
+ * - sort by key
+ * - calculate from value
+ * - support % change
+ ***************/
 export const valueChange = (data, valueField, sortedKeyField, isPercent) => {
 	if (!(data && data.length > 1 && valueField)) {
 		return 0;

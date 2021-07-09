@@ -17,22 +17,37 @@ import NotificationAlert from 'react-notification-alert';
 import Loader from 'react-loader-spinner';
 
 const Pool = props => {
+  // address from query string parameter
   const address = props.match && props.match.params && props.match.params.address;
+  // this pool data
   const [poolsData, setPoolsData] = useState([]);
+  // first page of data loaded parameter
   const [loaded, setLoaded] = useState(false);
+  // first time all page of data loaded parameter
   const [fullLoaded, setFullLoaded] = useState(false);
+  // loading data state
   const [loading, setLoading] = useState(false);
+
+  // list of chart duration
   const timeRanges = ['7d', '30d'];
 
+  // chart duration of liquidity
   const [liquidityTimeRange, setLiquidityTimeRange] = useState('30d');
+  // chart duration of volume
   const [volumeTimeRange, setVolumeTimeRange] = useState('30d');
+  // index of date that user cursor focus on liquidity chart
   const [liquidityDateIndexFocus, setLiquidityDateIndexFocus] = useState(null);
+  // index of date that user cursor focus on volume chart
   const [volumeDateIndexFocus, setVolumeDateIndexFocus] = useState(null);
+  // index of date that user cursor focus on base token's price chart
   const [priceToken0DateIndexFocus, setPriceToken0DateIndexFocus] = useState(null);
+  // index of date that user cursor focus on quote token's price chart
   const [priceToken1DateIndexFocus, setPriceToken1DateIndexFocus] = useState(null);
 
+  // notification reference
   const notificationAlertRef = useRef(null);
 
+  // responsive width
   const useWindowSize = () => {
     const [size, setSize] = useState(null);
     useLayoutEffect(() => {
@@ -45,13 +60,16 @@ const Pool = props => {
   };
   const width = useWindowSize();
 
+  // setup chart.js default options
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
   }
 
+  // request DEX pool: '/{chain_id}/xy=k/{dexname}/pools/address/{address}/'
   useEffect(() => {
     const getData = async () => {
       const data = poolsData ? poolsData : [];
+      // start pagination
       let size = 0;
       let page = 0;
       let hasMore = true;
@@ -65,6 +83,7 @@ const Pool = props => {
                 data[size++] = response.data.items[i];
               }
               setPoolsData(data);
+              // set first page of data loaded
               setLoaded(true);
             }
             hasMore = response.data.pagination && response.data.pagination.has_more;
@@ -76,15 +95,19 @@ const Pool = props => {
         } catch (error) {}
         page++;
       }
+      // end pagination
       data.length = size;
       setPoolsData(data);
+      // set first time all page of data loaded
       setFullLoaded(true);
     };
     getData();
+    // interval request (60 sec)
     const interval = setInterval(() => getData(), 60 * 1000);
     return () => clearInterval(interval);
   }, [address, poolsData]);
 
+  // ecosystem data from each dimension aggregation
   const ecosystemData = poolsData && [{
     total_swaps_24h: _.sumBy(poolsData, 'swap_count_24h'),
     total_fees_24h: _.sumBy(poolsData, 'fee_24h_quote'),
@@ -104,10 +127,12 @@ const Pool = props => {
 
   return (
     <div className="my-2 my-md-3 my-lg-4 mx-auto px-0 px-md-3 px-lg-5" style={{ maxWidth: '80rem' }}>
+      {/* notification component */}
       <div className="react-notification-alert-container copy">
         <NotificationAlert ref={notificationAlertRef} />
       </div>
       <Row className="mb-3 mx-1">
+        {/* pair information */}
         <Col lg="6" md="7" xs="12">
           {poolsData && poolsData.filter(poolData => poolData.token_0 && poolData.token_1).map((poolData, key) => (
             <div key={key} className="d-flex align-items-center">
@@ -138,6 +163,7 @@ const Pool = props => {
             </div>
           ))}
         </Col>
+        {/* link to go to do actions on DEX and etherscan.io */}
         <Col lg="6" md="5" xs="12" className="d-flex align-items-center justify-content-start justify-content-md-end">
           {poolsData && poolsData[0] && poolsData[0].token_0 && poolsData[0].token_1 && (
             <>
@@ -150,6 +176,7 @@ const Pool = props => {
       </Row>
       {loaded && ecosystemData && ecosystemData[0] && (
         <Row className="mt-3 mx-1">
+          {/* liquidity chart */}
           <Col lg="6" md="12" xs="12">
             <Card className="card-chart">
               <CardHeader>
@@ -242,6 +269,7 @@ const Pool = props => {
               </CardBody>
             </Card>
           </Col>
+          {/* volume chart */}
           <Col lg="6" md="12" xs="12">
             <Card className="card-chart">
               <CardHeader>
@@ -329,6 +357,7 @@ const Pool = props => {
               </CardBody>
             </Card>
           </Col>
+          {/* statistical data */}
           <Col lg="12" md="12" xs="12" className={`text-${width <= 575 ? 'center' : 'left'} mb-4`}>
             {ecosystemData && ecosystemData[0] && (
               <>
@@ -363,6 +392,7 @@ const Pool = props => {
       )}
       <Row className="mt-3 mx-1">
         <Col lg="12" md="12" xs="12">
+          {/* pool's tokens title */}
           <Row className="mb-2">
             <Col lg="12" md="12" xs="12" className="d-flex align-items-center">
               <h3 className="d-flex align-items-center mb-0" style={{ fontWeight: 600 }}>
@@ -371,11 +401,13 @@ const Pool = props => {
               </h3>
             </Col>
           </Row>
+          {/* base token & quote token data */}
           <Row className="mt-3">
             {poolsData && poolsData.map(poolData => (
               [...Array(2).keys()].map((iToken, key) => (
                 <Col key={key} lg="6" md="12" xs="12">
                   <Card className="card-chart p-3">
+                    {/* each token information */}
                     <CardHeader>
                       <div className="d-flex align-items-center">
                         <Link to={`/tokens/${poolData[`token_${iToken}`].contract_address}`}>
@@ -414,11 +446,13 @@ const Pool = props => {
                       </div>
                     </CardHeader>
                     <CardBody className="py-3 px-0">
+                      {/* num token reserved and liquidity rate */}
                       <div className="mt-4">
                         <div className="text-muted text-center" style={{ fontSize: '.85rem', fontWeight: 300 }}>{iToken === 0 ? 'Base' : 'Quote'}&nbsp;{"Reserve"}</div>
                         <h1 className="text-center mt-3 mb-0" style={{ fontWeight: 600 }}>{numeral(poolData[`token_${iToken}`].reserve / Math.pow(10, poolData[`token_${iToken}`].contract_decimals)).format('0,0')}{" "}{poolData[`token_${iToken}`].contract_ticker_symbol}</h1>
                         <div className="text-muted text-center mt-2" style={{ fontSize: '1rem', fontWeight: 300 }}>{"1 "}{poolData[`token_${iToken}`].contract_ticker_symbol}{" = "}{numberOptimizeDecimal(numeral((poolData[`token_${iToken === 0 ? 1 : 0}`].reserve / Math.pow(10, poolData[`token_${iToken === 0 ? 1 : 0}`].contract_decimals)) / (poolData[`token_${iToken}`].reserve / Math.pow(10, poolData[`token_${iToken}`].contract_decimals))).format('0,0.00000000'))}{" "}{poolData[`token_${iToken === 0 ? 1 : 0}`].contract_ticker_symbol}</div>
                       </div>
+                      {/* price chart */}
                       <Row className="mt-4 mx-0">
                         <Col lg="12" md="12" xs="12" className="text-right">
                           <h4 className="card-category mb-0" style={{ fontSize: '1rem' }}>{"Price"}</h4>

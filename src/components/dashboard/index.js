@@ -15,33 +15,57 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'react-feather';
 import Loader from 'react-loader-spinner';
 
+// dashboard component
 const Dashboard = props => {
+  // ecosystem data from redux
   const ecosystemData = useSelector(content => content.data.ecosystem_data);
+  // pools data from redux
   const poolsData = useSelector(content => content.data.pools_data);
+  // token data from redux
   const tokensData = useSelector(content => content.data.tokens_data);
+
+  // list of chart duration
   const timeRanges = ['7d', '30d'];
 
+  // chart duration of liquidity
   const [liquidityTimeRange, setLiquidityTimeRange] = useState('30d');
+  // chart duration of volume
   const [volumeTimeRange, setVolumeTimeRange] = useState('30d');
+  // index of date that user cursor focus on liquidity chart
   const [liquidityDateIndexFocus, setLiquidityDateIndexFocus] = useState(null);
+  // index of date that user cursor focus on volume chart
   const [volumeDateIndexFocus, setVolumeDateIndexFocus] = useState(null);
 
+  // list of num row per page
   const perPageSizes = [5, 10, 25, 100];
 
+  // pools sort info
   const [poolsSort, setPoolsSort] = useState({ field: 'total_liquidity_quote', direction: 'desc' });
+  // word for filter pools by pair/tokens/address
   const [poolsFilter, setPoolsFilter] = useState('');
+  // num pools per table's page
   const [poolsPerPage, setPoolsPerPage] = useState(5);
+  // state of num pools per page dropdown open
   const [poolsPerPageDropdownOpen, setPoolsPerPageDropdownOpen] = useState(false);
+  // toggle function of num pools per page dropdown
   const togglePoolsPerPageDropdown = () => setPoolsPerPageDropdownOpen(!poolsPerPageDropdownOpen);
+  // pools table page selected
   const [poolsPage, setPoolsPage] = useState(0);
 
+  // pools sort info
   const [tokensSort, setTokensSort] = useState({ field: 'total_liquidity_quote', direction: 'desc' });
+  // word for filter tokens by token/address
   const [tokensFilter, setTokensFilter] = useState('');
+  // num tokens per table's page
   const [tokensPerPage, setTokensPerPage] = useState(5);
+  // state of num tokens per page dropdown open
   const [tokensPerPageDropdownOpen, setTokensPerPageDropdownOpen] = useState(false);
+  // toggle function of num tokens per page dropdown
   const toggleTokensPerPageDropdown = () => setTokensPerPageDropdownOpen(!tokensPerPageDropdownOpen);
+  // tokens table page selected
   const [tokensPage, setTokensPage] = useState(0);
 
+  // responsive width
   const useWindowSize = () => {
     const [size, setSize] = useState(null);
     useLayoutEffect(() => {
@@ -54,10 +78,12 @@ const Dashboard = props => {
   };
   const width = useWindowSize();
 
+  // setup chart.js default options
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
   }
 
+  // normalize and filter pools data
   const filterredPoolsData = poolsData && poolsData.filter(poolData => poolData.token_0 && poolData.token_1).map((poolData, i) => {
     return {
       ...poolData,
@@ -76,9 +102,12 @@ const Dashboard = props => {
     poolData.name.toLowerCase().startsWith(poolsFilter.toLowerCase()) ||
     (poolData.token_0 && ((poolData.token_0.contract_name && poolData.token_0.contract_name.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1) || (poolData.token_0.contract_ticker_symbol && poolData.token_0.contract_ticker_symbol.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1))) ||
     (poolData.token_1 && ((poolData.token_1.contract_name && poolData.token_1.contract_name.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1) || (poolData.token_1.contract_ticker_symbol && poolData.token_1.contract_ticker_symbol.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1)))
-  );
+  ); // filter by user's text input
+
+  // filter pools data on page selected
   const filterredPagePoolsData = filterredPoolsData && filterredPoolsData.filter((poolData, i) => i >= poolsPage * poolsPerPage && i < (poolsPage + 1) * poolsPerPage);
 
+  // normalize and filter tokens data
   const filterredTokensData = tokensData && tokensData.map((tokenData, i) => {
     return {
       ...tokenData,
@@ -93,13 +122,16 @@ const Dashboard = props => {
     tokensFilter.toLowerCase() === tokenData.contract_address ||
     tokenData.contract_name.toLowerCase().indexOf(tokensFilter.toLowerCase()) > -1 ||
     tokenData.contract_ticker_symbol.toLowerCase().indexOf(tokensFilter.toLowerCase()) > -1
-  );
+  ); // filter by user's text input
+
+  // filter tokens data on page selected
   const filterredPageTokensData = filterredTokensData && filterredTokensData.filter((tokenData, i) => i >= tokensPage * tokensPerPage && i < (tokensPage + 1) * tokensPerPage);
 
   return (
     <div className="my-2 my-md-3 my-lg-4 mx-auto px-0 px-md-3 px-lg-5" style={{ maxWidth: '80rem' }}>
       {ecosystemData && ecosystemData[0] && (
         <Row className="mx-1">
+          {/* liquidity chart */}
           <Col lg="6" md="12" xs="12">
             <Card className="card-chart">
               <CardHeader>
@@ -189,6 +221,7 @@ const Dashboard = props => {
               </CardBody>
             </Card>
           </Col>
+          {/* volume chart */}
           <Col lg="6" md="12" xs="12">
             <Card className="card-chart">
               <CardHeader>
@@ -273,6 +306,7 @@ const Dashboard = props => {
               </CardBody>
             </Card>
           </Col>
+          {/* statistical data */}
           <Col lg="12" md="12" xs="12" className={`text-${width <= 575 ? 'center' : 'left'} mb-4`}>
             {ecosystemData && ecosystemData[0] && (
               <>
@@ -303,6 +337,7 @@ const Dashboard = props => {
       )}
       <Row className="mt-3 mx-1">
         <Col lg="12" md="12" xs="12" className="mb-5">
+          {/* pools title and filter box */}
           <Row className="mb-2">
             <Col lg="6" md="6" xs="12" className="d-flex align-items-center">
               <Link to="/pools">
@@ -319,6 +354,7 @@ const Dashboard = props => {
               </Col>
             )}
           </Row>
+          {/* pools table */}
           <BootstrapTable
             keyField="rank"
             bordered={false}
@@ -518,6 +554,7 @@ const Dashboard = props => {
               },
             ]}
           />
+          {/* pools paginations */}
           {filterredPoolsData && Math.floor(filterredPoolsData.length / perPageSizes[0]) > 0 && (
             <div className={`text-center d-${width <= 575 ? 'block' : 'flex'} align-items-center justify-content-center justify-content-md-end`}>
               {"Rows per page"}
@@ -567,6 +604,7 @@ const Dashboard = props => {
           )}
         </Col>
         <Col lg="12" md="12" xs="12">
+          {/* tokens title and filter box */}
           <Row className="mb-2">
             <Col lg="6" md="6" xs="12" className="d-flex align-items-center">
               <Link to="/tokens">
@@ -583,6 +621,7 @@ const Dashboard = props => {
               </Col>
             )}
           </Row>
+          {/* tokens table */}
           <BootstrapTable
             keyField="rank"
             bordered={false}
@@ -709,6 +748,7 @@ const Dashboard = props => {
               },
             ]}
           />
+          {/* tokens paginations */}
           {filterredTokensData && Math.floor(filterredTokensData.length / perPageSizes[0]) > 0 && (
             <div className={`text-center d-${width <= 575 ? 'block' : 'flex'} align-items-center justify-content-center justify-content-md-end`}>
               {"Rows per page"}

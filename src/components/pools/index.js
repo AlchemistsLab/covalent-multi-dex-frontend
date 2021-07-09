@@ -9,17 +9,26 @@ import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'react-feather';
 import Loader from 'react-loader-spinner';
 
 const Pools = props => {
+  // pools data from redux
   const poolsData = useSelector(content => content.data.pools_data);
 
+  // list of num row per page
   const perPageSizes = [5, 10, 25, 100];
 
+  // pools sort info
   const [poolsSort, setPoolsSort] = useState({ field: 'total_liquidity_quote', direction: 'desc' });
+  // word for filter pools by pair/tokens/address
   const [poolsFilter, setPoolsFilter] = useState('');
+  // num pools per table's page
   const [poolsPerPage, setPoolsPerPage] = useState(10);
+  // state of num pools per page dropdown open
   const [poolsPerPageDropdownOpen, setPoolsPerPageDropdownOpen] = useState(false);
+  // toggle function of num pools per page dropdown
   const togglePoolsPerPageDropdown = () => setPoolsPerPageDropdownOpen(!poolsPerPageDropdownOpen);
+  // pools table page selected
   const [poolsPage, setPoolsPage] = useState(0);
 
+  // responsive width
   const useWindowSize = () => {
     const [size, setSize] = useState(null);
     useLayoutEffect(() => {
@@ -32,6 +41,7 @@ const Pools = props => {
   };
   const width = useWindowSize();
 
+  // normalize and filter pools data
   const filterredPoolsData = poolsData && poolsData.filter(poolData => poolData.token_0 && poolData.token_1).map((poolData, i) => {
     return {
       ...poolData,
@@ -50,13 +60,16 @@ const Pools = props => {
     poolData.name.toLowerCase().startsWith(poolsFilter.toLowerCase()) ||
     (poolData.token_0 && ((poolData.token_0.contract_name && poolData.token_0.contract_name.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1) || (poolData.token_0.contract_ticker_symbol && poolData.token_0.contract_ticker_symbol.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1))) ||
     (poolData.token_1 && ((poolData.token_1.contract_name && poolData.token_1.contract_name.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1) || (poolData.token_1.contract_ticker_symbol && poolData.token_1.contract_ticker_symbol.toLowerCase().indexOf(poolsFilter.toLowerCase()) > -1)))
-  );
+  ); // filter by user's text input
+
+  // filter pools data on page selected
   const filterredPagePoolsData = filterredPoolsData && filterredPoolsData.filter((poolData, i) => i >= poolsPage * poolsPerPage && i < (poolsPage + 1) * poolsPerPage);
 
   return (
     <div className="my-2 my-md-3 my-lg-4 mx-auto px-0 px-md-3 px-lg-5" style={{ maxWidth: '80rem' }}>
       <Row className="mt-3 mx-1">
         <Col lg="12" md="12" xs="12">
+          {/* pools title and filter box */}
           <Row className="mb-2">
             <Col lg="6" md="6" xs="12" className="d-flex align-items-center">
               <h3 className="mb-0" style={{ fontWeight: 600 }}>{"All Pools"}</h3>
@@ -71,6 +84,7 @@ const Pools = props => {
               </Col>
             )}
           </Row>
+          {/* pools table */}
           <BootstrapTable
             keyField="rank"
             bordered={false}
@@ -270,6 +284,7 @@ const Pools = props => {
               },
             ]}
           />
+          {/* pools paginations */}
           {filterredPoolsData && Math.floor(filterredPoolsData.length / perPageSizes[0]) > 0 && (
             <div className={`text-center d-${width <= 575 ? 'block' : 'flex'} align-items-center justify-content-center justify-content-md-end`}>
               {"Rows per page"}

@@ -17,9 +17,11 @@ ReactDOM.render(
       <BrowserRouter>
         <Switch>
           <App>
+            {/* iterate all routes */}
             {routes.map(({ path, Component, exact }) => (
               <Route key={path ? path : ''} path={path} exact={exact}>
                 {({ location, match }) => {
+                  // redirect path end with multiple '/'
                   if (location.pathname.length > 1 && location.pathname.endsWith('/')) {
                     let redirectPath = location.pathname;
                     while (redirectPath.endsWith('/')) {
@@ -27,6 +29,7 @@ ReactDOM.render(
                     }
                     return (<Redirect to={redirectPath} />);
                   }
+                  // start filter route
                   if (!path && match) {
                     if (match.isExact || location.key) {
                       match = null;
@@ -46,7 +49,8 @@ ReactDOM.render(
                   if (match && match.url !== match.path && routes.findIndex(route => route.path === match.url) > -1) {
                     match = null;
                   }
-                  return match && (<Component match={match} />);
+                  // end filter route
+                  return match && (<Component match={match} />); // return component for each route
                 }}
               </Route>
             ))}
