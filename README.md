@@ -1,6 +1,8 @@
 # Covalent - SushiSwap Dashboard
 An analytics dashboard presents SushiSwap DEX information. You can see SushiSwap's updated information, including liquidity, swap, other granular and historical data, etc.
 
+<img width="1440" alt="Covalent - SushiSwap Dashboard" src="https://user-images.githubusercontent.com/87146398/125054269-3c096480-e0d0-11eb-9a60-62c0b748ccfd.png">
+
 ## Dashboard URL
 [https://sushiswap.coinhippo.io](https://sushiswap.coinhippo.io)
 
