@@ -1,7 +1,7 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Badge, Nav, NavItem, NavLink } from 'reactstrap';
+import { Badge, Nav, NavItem } from 'reactstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
 import logo from '../../logo.png';
@@ -75,7 +75,7 @@ const Header = props => {
         <Nav pills style={{ display: 'contents' }}>
           {routes.filter(route => route.is_menu).map((route, key) => (
             <NavItem key={key}>
-              <Link to={route.path}><NavLink active={paths[0] === route.path_check}>{route.title}</NavLink></Link>
+              <Link to={route.path} className={`nav-link${paths[0] === route.path_check ? ' active' : ''}`}>{route.title}</Link>
             </NavItem>
           ))}
         </Nav>
