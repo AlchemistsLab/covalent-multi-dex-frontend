@@ -36,11 +36,11 @@ ReactDOM.render(
                     }
                     else {
                       if (routes.filter(route => route.path).findIndex(route => {
-                        const routeSplited = route.path.split('/');
-                        const pathSplited = location.pathname.split('/');
-                        if (routeSplited.length !== pathSplited.length)
+                        const routeSplit = route.path.split('/');
+                        const pathSplit = location.pathname.split('/');
+                        if (routeSplit.length !== pathSplit.length)
                           return false;
-                        return routeSplited.findIndex((x, i) => !(x === pathSplited[i] || x.startsWith(':'))) > -1 ? false : true;
+                        return routeSplit.findIndex((x, i) => !(x === pathSplit[i] || x.startsWith(':'))) > -1 ? false : true;
                       }) > -1) {
                         match = null;
                       }

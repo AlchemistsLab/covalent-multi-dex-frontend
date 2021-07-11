@@ -31,7 +31,7 @@ const Header = props => {
   };
   const width = useWindowSize();
 
-  // splited path to list
+  // split path to list
   const paths = window.location.pathname && window.location.pathname.split('/').filter(path => path);
 
   return (
