@@ -42,7 +42,7 @@ const Pools = props => {
   const width = useWindowSize();
 
   // normalize and filter pools data
-  const filterredPoolsData = poolsData && poolsData.filter(poolData => poolData.token_0 && poolData.token_1).map((poolData, i) => {
+  const filteredPoolsData = poolsData && poolsData.filter(poolData => poolData.token_0 && poolData.token_1).map((poolData, i) => {
     return {
       ...poolData,
       rank: i,
@@ -63,7 +63,7 @@ const Pools = props => {
   ); // filter by user's text input
 
   // filter pools data on page selected
-  const filterredPagePoolsData = filterredPoolsData && filterredPoolsData.filter((poolData, i) => i >= poolsPage * poolsPerPage && i < (poolsPage + 1) * poolsPerPage);
+  const filteredPagePoolsData = filteredPoolsData && filteredPoolsData.filter((poolData, i) => i >= poolsPage * poolsPerPage && i < (poolsPage + 1) * poolsPerPage);
 
   return (
     <div className="my-2 my-md-3 my-lg-4 mx-auto px-0 px-md-3 px-lg-5" style={{ maxWidth: '80rem' }}>
@@ -90,7 +90,7 @@ const Pools = props => {
             bordered={false}
             noDataIndication={poolsData ? 'No Data' : <span className="d-flex align-items-center justify-content-center">{"Loading"}<Loader type="ThreeDots" color="white" width="14" height="14" className="mt-1 ml-1" /></span>}
             classes={`${width <= 1024 ? 'table-responsive ' : ''}pb-0`}
-            data={!poolsData ? [] : _.orderBy(filterredPagePoolsData, [poolsSort.field || 'rank'], [poolsSort.direction])}
+            data={!poolsData ? [] : _.orderBy(filteredPagePoolsData, [poolsSort.field || 'rank'], [poolsSort.direction])}
             columns={[
               {
                 dataField: 'name',
@@ -285,7 +285,7 @@ const Pools = props => {
             ]}
           />
           {/* pools paginations */}
-          {filterredPoolsData && Math.floor(filterredPoolsData.length / perPageSizes[0]) > 0 && (
+          {filteredPoolsData && Math.floor(filteredPoolsData.length / perPageSizes[0]) > 0 && (
             <div className={`text-center d-${width <= 575 ? 'block' : 'flex'} align-items-center justify-content-center justify-content-md-end`}>
               {"Rows per page"}
               <ButtonDropdown direction="up" isOpen={poolsPerPageDropdownOpen} toggle={togglePoolsPerPageDropdown} className="ml-2 mr-0 mr-md-3">
@@ -318,13 +318,13 @@ const Pools = props => {
               </Button>
               {(poolsPage * poolsPerPage) + 1}
               {" - "}
-              {(poolsPage + 1) * poolsPerPage > filterredPoolsData.length ? filterredPoolsData.length : (poolsPage + 1) * poolsPerPage}
+              {(poolsPage + 1) * poolsPerPage > filteredPoolsData.length ? filteredPoolsData.length : (poolsPage + 1) * poolsPerPage}
               {" of "}
-              {numeral(filterredPoolsData.length).format('0,0')}
+              {numeral(filteredPoolsData.length).format('0,0')}
               <Button
                 color="default"
                 size="sm"
-                disabled={(poolsPage + 1) * poolsPerPage > filterredPoolsData.length}
+                disabled={(poolsPage + 1) * poolsPerPage > filteredPoolsData.length}
                 onClick={() => setPoolsPage(poolsPage + 1)}
                 className="ml-2"
               >

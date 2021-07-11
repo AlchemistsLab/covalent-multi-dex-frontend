@@ -45,7 +45,7 @@ const Tokens = props => {
   const width = useWindowSize();
 
   // normalize and filter tokens data
-  const filterredTokensData = tokensData && tokensData.map((tokenData, i) => {
+  const filteredTokensData = tokensData && tokensData.map((tokenData, i) => {
     return {
       ...tokenData,
       rank: i,
@@ -65,7 +65,7 @@ const Tokens = props => {
   ); // filter by user's text input
 
   // filter tokens data on page selected
-  const filterredPageTokensData = filterredTokensData && filterredTokensData.filter((tokenData, i) => i >= tokensPage * tokensPerPage && i < (tokensPage + 1) * tokensPerPage);
+  const filteredPageTokensData = filteredTokensData && filteredTokensData.filter((tokenData, i) => i >= tokensPage * tokensPerPage && i < (tokensPage + 1) * tokensPerPage);
 
   return (
     <div className="my-2 my-md-3 my-lg-4 mx-auto px-0 px-md-3 px-lg-5" style={{ maxWidth: '80rem' }}>
@@ -92,7 +92,7 @@ const Tokens = props => {
             bordered={false}
             noDataIndication={tokensData ? 'No Data' : <span className="d-flex align-items-center justify-content-center">{"Loading"}<Loader type="ThreeDots" color="white" width="14" height="14" className="mt-1 ml-1" /></span>}
             classes={`${width <= 575 ? 'table-responsive ' : ''}pb-0`}
-            data={!tokensData ? [] : _.orderBy(filterredPageTokensData, [tokensSort.field || 'rank'], [tokensSort.direction])}
+            data={!tokensData ? [] : _.orderBy(filteredPageTokensData, [tokensSort.field || 'rank'], [tokensSort.direction])}
             columns={[
               {
                 dataField: 'contract_name',
@@ -225,7 +225,7 @@ const Tokens = props => {
             ]}
           />
           {/* tokens paginations */}
-          {filterredTokensData && Math.floor(filterredTokensData.length / perPageSizes[0]) > 0 && (
+          {filteredTokensData && Math.floor(filteredTokensData.length / perPageSizes[0]) > 0 && (
             <div className={`text-center d-${width <= 575 ? 'block' : 'flex'} align-items-center justify-content-center justify-content-md-end`}>
               {"Rows per page"}
               <ButtonDropdown direction="up" isOpen={tokensPerPageDropdownOpen} toggle={toggleTokensPerPageDropdown} className="ml-2 mr-0 mr-md-3">
@@ -258,13 +258,13 @@ const Tokens = props => {
               </Button>
               {(tokensPage * tokensPerPage) + 1}
               {" - "}
-              {(tokensPage + 1) * tokensPerPage > filterredTokensData.length ? filterredTokensData.length : (tokensPage + 1) * tokensPerPage}
+              {(tokensPage + 1) * tokensPerPage > filteredTokensData.length ? filteredTokensData.length : (tokensPage + 1) * tokensPerPage}
               {" of "}
-              {numeral(filterredTokensData.length).format('0,0')}
+              {numeral(filteredTokensData.length).format('0,0')}
               <Button
                 color="default"
                 size="sm"
-                disabled={(tokensPage + 1) * tokensPerPage > filterredTokensData.length}
+                disabled={(tokensPage + 1) * tokensPerPage > filteredTokensData.length}
                 onClick={() => setTokensPage(tokensPage + 1)}
                 className="ml-2"
               >
