@@ -83,8 +83,6 @@ const Pool = props => {
                 data[size++] = response.data.items[i];
               }
               setPoolsData(data);
-              // set first page of data loaded
-              setLoaded(true);
             }
             hasMore = response.data.pagination && response.data.pagination.has_more;
           }
@@ -93,6 +91,8 @@ const Pool = props => {
           }
           setLoading(false);
         } catch (error) {}
+        // set first page of data loaded
+        setLoaded(true);
         page++;
       }
       // end pagination
