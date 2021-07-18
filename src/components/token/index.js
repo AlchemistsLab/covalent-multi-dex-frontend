@@ -567,7 +567,7 @@ const Token = props => {
                 formatter: (cell, row) => (
                   <div className="d-flex align-items-center">
                     <img src={row.token_0.logo_url} alt="" className="avatar pool-token" />
-                    <span>{numeral(cell).format('0,0')}&nbsp;<a href={`/tokens/${row.token_0.contract_address}`}>{row.token_0.contract_ticker_symbol}</a></span>
+                    <span>{numeral(cell).format('0,0')}&nbsp;<a href={`/${dexData.dex_name}/tokens/${row.token_0.contract_address}`}>{row.token_0.contract_ticker_symbol}</a></span>
                   </div>
                 ),
               }, {
@@ -593,7 +593,7 @@ const Token = props => {
                 formatter: (cell, row) => (
                   <div className="d-flex align-items-center">
                     <img src={row.token_1.logo_url} alt="" className="avatar pool-token" />
-                    <span>{numeral(cell).format('0,0')}&nbsp;<a href={`/tokens/${row.token_1.contract_address}`}>{row.token_1.contract_ticker_symbol}</a></span>
+                    <span>{numeral(cell).format('0,0')}&nbsp;<a href={`/${dexData.dex_name}/tokens/${row.token_1.contract_address}`}>{row.token_1.contract_ticker_symbol}</a></span>
                   </div>
                 ),
               }, {
