@@ -1,7 +1,8 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { numberOptimizeDecimal } from '../../utils';
+import { POOLS_DATA, TOKENS_DATA } from '../../redux/types';
+import { dexs, numberOptimizeDecimal } from '../../utils';
 import { Row, Col, Button, Input, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
@@ -10,10 +11,14 @@ import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'react-feather';
 import Loader from 'react-loader-spinner';
 
 const Tokens = props => {
+  // dex name from query string parameter
+  const dexName = props.match && props.match.params && props.match.params.dex_name && props.match.params.dex_name.toLowerCase();
+  // dex data
+  const dexData = dexs[dexs.findIndex(dex => dex.dex_name === dexName)] || dexs[0];
   // pools data from redux
-  const poolsData = useSelector(content => content.data.pools_data);
+  const poolsData = useSelector(content => content.data[POOLS_DATA]);
   // tokens data from redux
-  const tokensData = useSelector(content => content.data.tokens_data);
+  const tokensData = useSelector(content => content.data[TOKENS_DATA]);
 
   // list of num row per page
   const perPageSizes = [5, 10, 25, 100];
@@ -115,7 +120,7 @@ const Tokens = props => {
                   minWidth: '12.5rem'
                 },
                 formatter: (cell, row) => (
-                  <Link to={`/tokens/${row.contract_address}`} className="d-flex align-items-center">
+                  <Link to={`/${dexData.dex_name}/tokens/${row.contract_address}`} className="d-flex align-items-center">
                     <img src={row.logo_url} alt="" className="avatar pool-token-0 mr-3" />
                     <div>
                       <span>{cell}</span>
