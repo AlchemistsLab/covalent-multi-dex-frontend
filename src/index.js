@@ -7,6 +7,7 @@ import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { routes } from './routes';
 import store from './store';
+import { dexs } from './utils';
 import './assets/scss/black-dashboard-react.scss';
 import './assets/css/nucleo-icons.css';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
@@ -28,6 +29,9 @@ ReactDOM.render(
                       redirectPath = redirectPath.substring(0, redirectPath.length - 1);
                     }
                     return (<Redirect to={redirectPath} />);
+                  }
+                  if (!location.pathname || location.pathname === '/') {
+                    return (<Redirect to={`/${dexs[0].dex_name}`} />);
                   }
                   // start filter route
                   if (!path && match) {

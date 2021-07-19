@@ -1,7 +1,8 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { numberOptimizeDecimal } from '../../utils';
+import { ECOSYSTEM_DATA, POOLS_DATA, TOKENS_DATA } from '../../redux/types';
+import { dexs, numberOptimizeDecimal } from '../../utils';
 import { Row, Col, Card, CardHeader, CardTitle, CardBody, Badge, ButtonGroup, Button, Input, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
@@ -17,12 +18,16 @@ import Loader from 'react-loader-spinner';
 
 // dashboard component
 const Dashboard = props => {
+  // dex name from query string parameter
+  const dexName = props.match && props.match.params && props.match.params.dex_name && props.match.params.dex_name.toLowerCase();
+  // dex data
+  const dexData = dexs[dexs.findIndex(dex => dex.dex_name === dexName)] || dexs[0];
   // ecosystem data from redux
-  const ecosystemData = useSelector(content => content.data.ecosystem_data);
+  const ecosystemData = useSelector(content => content.data[ECOSYSTEM_DATA]);
   // pools data from redux
-  const poolsData = useSelector(content => content.data.pools_data);
+  const poolsData = useSelector(content => content.data[POOLS_DATA]);
   // token data from redux
-  const tokensData = useSelector(content => content.data.tokens_data);
+  const tokensData = useSelector(content => content.data[TOKENS_DATA]);
 
   // list of chart duration
   const timeRanges = ['7d', '30d'];
@@ -340,8 +345,8 @@ const Dashboard = props => {
           {/* pools title and filter box */}
           <Row className="mb-2">
             <Col lg="6" md="6" xs="12" className="d-flex align-items-center">
-              <Link to="/pools">
-                <h3 className="mb-0" style={{ fontWeight: 600 }}>{"Sushi Pools"}</h3>
+              <Link to={`/${dexData.dex_name}/pools`}>
+                <h3 className="mb-0" style={{ fontWeight: 600 }}>{dexData.symbol}{" Pools"}</h3>
               </Link>
             </Col>
             {poolsData && (
@@ -383,7 +388,7 @@ const Dashboard = props => {
                   minWidth: '12.5rem'
                 },
                 formatter: (cell, row) => (
-                  <Link to={`/pools/${row.exchange}`} className="d-flex align-items-center">
+                  <Link to={`/${dexData.dex_name}/pools/${row.exchange}`} className="d-flex align-items-center">
                     <img src={row.token_0.logo_url} alt="" className="avatar pool-token-0" />
                     <img src={row.token_1.logo_url} alt="" className="avatar pool-token-1" />
                     <span>{cell}</span>
@@ -478,7 +483,7 @@ const Dashboard = props => {
                 formatter: (cell, row) => (
                   <div className="d-flex align-items-center">
                     <img src={row.token_0.logo_url} alt="" className="avatar pool-token" />
-                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/tokens/${row.token_0.contract_address}`}>{row.token_0.contract_ticker_symbol}</Link></span>
+                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/${dexData.dex_name}/tokens/${row.token_0.contract_address}`}>{row.token_0.contract_ticker_symbol}</Link></span>
                   </div>
                 ),
               }, {
@@ -504,7 +509,7 @@ const Dashboard = props => {
                 formatter: (cell, row) => (
                   <div className="d-flex align-items-center">
                     <img src={row.token_1.logo_url} alt="" className="avatar pool-token" />
-                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/tokens/${row.token_1.contract_address}`}>{row.token_1.contract_ticker_symbol}</Link></span>
+                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/${dexData.dex_name}/tokens/${row.token_1.contract_address}`}>{row.token_1.contract_ticker_symbol}</Link></span>
                   </div>
                 ),
               }, {
@@ -607,7 +612,7 @@ const Dashboard = props => {
           {/* tokens title and filter box */}
           <Row className="mb-2">
             <Col lg="6" md="6" xs="12" className="d-flex align-items-center">
-              <Link to="/tokens">
+              <Link to={`/${dexData.dex_name}/tokens`}>
                 <h3 className="mb-0" style={{ fontWeight: 600 }}>{"Top Tokens"}</h3>
               </Link>
             </Col>
@@ -650,7 +655,7 @@ const Dashboard = props => {
                   minWidth: '12.5rem'
                 },
                 formatter: (cell, row) => (
-                  <Link to={`/tokens/${row.contract_address}`} className="d-flex align-items-center">
+                  <Link to={`/${dexData.dex_name}/tokens/${row.contract_address}`} className="d-flex align-items-center">
                     <img src={row.logo_url} alt="" className="avatar pool-token-0 mr-3" />
                     <span>{cell}</span>
                   </Link>
@@ -675,7 +680,7 @@ const Dashboard = props => {
                   cursor: 'pointer'
                 },
                 formatter: (cell, row) => (
-                  <Link to={`/tokens/${row.contract_address}`} className="text-secondary d-flex align-items-center">
+                  <Link to={`/${dexData.dex_name}/tokens/${row.contract_address}`} className="text-secondary d-flex align-items-center">
                     <span>{cell}</span>
                   </Link>
                 ),

@@ -1,6 +1,8 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { POOLS_DATA } from '../../redux/types';
+import { dexs } from '../../utils';
 import { Row, Col, Button, Input, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
@@ -9,8 +11,12 @@ import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'react-feather';
 import Loader from 'react-loader-spinner';
 
 const Pools = props => {
+  // dex name from query string parameter
+  const dexName = props.match && props.match.params && props.match.params.dex_name && props.match.params.dex_name.toLowerCase();
+  // dex data
+  const dexData = dexs[dexs.findIndex(dex => dex.dex_name === dexName)] || dexs[0];
   // pools data from redux
-  const poolsData = useSelector(content => content.data.pools_data);
+  const poolsData = useSelector(content => content.data[POOLS_DATA]);
 
   // list of num row per page
   const perPageSizes = [5, 10, 25, 100];
@@ -113,7 +119,7 @@ const Pools = props => {
                   minWidth: '12.5rem'
                 },
                 formatter: (cell, row) => (
-                  <Link to={`/pools/${row.exchange}`} className="d-flex align-items-center">
+                  <Link to={`/${dexData.dex_name}/pools/${row.exchange}`} className="d-flex align-items-center">
                     <img src={row.token_0.logo_url} alt="" className="avatar pool-token-0" />
                     <img src={row.token_1.logo_url} alt="" className="avatar pool-token-1" />
                     <span>{cell}</span>
@@ -208,7 +214,7 @@ const Pools = props => {
                 formatter: (cell, row) => (
                   <div className="d-flex align-items-center">
                     <img src={row.token_0.logo_url} alt="" className="avatar pool-token" />
-                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/tokens/${row.token_0.contract_address}`}>{row.token_0.contract_ticker_symbol}</Link></span>
+                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/${dexData.dex_name}/tokens/${row.token_0.contract_address}`}>{row.token_0.contract_ticker_symbol}</Link></span>
                   </div>
                 ),
               }, {
@@ -234,7 +240,7 @@ const Pools = props => {
                 formatter: (cell, row) => (
                   <div className="d-flex align-items-center">
                     <img src={row.token_1.logo_url} alt="" className="avatar pool-token" />
-                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/tokens/${row.token_1.contract_address}`}>{row.token_1.contract_ticker_symbol}</Link></span>
+                    <span>{numeral(cell).format('0,0')}&nbsp;<Link to={`/${dexData.dex_name}/tokens/${row.token_1.contract_address}`}>{row.token_1.contract_ticker_symbol}</Link></span>
                   </div>
                 ),
               }, {

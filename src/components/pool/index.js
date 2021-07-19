@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { request as covalentRequest } from '../../api/covalent';
-import { numberOptimizeDecimal, valueChange } from '../../utils';
+import { dexs, numberOptimizeDecimal, valueChange } from '../../utils';
 import { Row, Col, NavLink, Card, CardHeader, CardTitle, CardBody, Badge, ButtonGroup, Button } from 'reactstrap';
 import _ from 'lodash';
 import numeral from 'numeral';
@@ -19,6 +19,10 @@ import Loader from 'react-loader-spinner';
 const Pool = props => {
   // address from query string parameter
   const address = props.match && props.match.params && props.match.params.address;
+  // dex name from query string parameter
+  const dexName = props.match && props.match.params && props.match.params.dex_name && props.match.params.dex_name.toLowerCase();
+  // dex data
+  const dexData = dexs[dexs.findIndex(dex => dex.dex_name === dexName)] || dexs[0];
   // this pool data
   const [poolsData, setPoolsData] = useState([]);
   // first page of data loaded parameter
@@ -76,7 +80,7 @@ const Pool = props => {
       while (hasMore) {
         try {
           setLoading(true);
-          const response = await covalentRequest(`/${process.env.REACT_APP_CHAIN_ID}/xy=k/${process.env.REACT_APP_DEX_NAME}/pools/address/${address}/`, { 'page-number': page });
+          const response = await covalentRequest(`/${dexData.chain_id}/xy=k/${dexData.dex_name}/pools/address/${address}/`, { 'page-number': page });
           if (response && response.data) {
             if (response.data.items) {
               for (let i = 0; i < response.data.items.length; i++) {
@@ -102,10 +106,10 @@ const Pool = props => {
       setFullLoaded(true);
     };
     getData();
-    // interval request (60 sec)
-    const interval = setInterval(() => getData(), 60 * 1000);
+    // interval request (180 sec)
+    const interval = setInterval(() => getData(), 180 * 1000);
     return () => clearInterval(interval);
-  }, [address, poolsData]);
+  }, [address, dexData, poolsData]);
 
   // ecosystem data from each dimension aggregation
   const ecosystemData = poolsData && [{
@@ -163,15 +167,15 @@ const Pool = props => {
             </div>
           ))}
         </Col>
-        {/* link to go to do actions on DEX and etherscan.io */}
+        {/* link to go to do actions on DEX and explorer */}
         <Col lg="6" md="5" xs="12" className="d-flex align-items-center justify-content-start justify-content-md-end">
           {poolsData && poolsData[0] && poolsData[0].token_0 && poolsData[0].token_1 && (
             <>
-              <NavLink href={`https://exchange.sushiswapclassic.org/#/add/${poolsData[0].token_0.contract_address}/${poolsData[0].token_1.contract_address}`} target="_blank" rel="noopener noreferrer" className="pl-0 pl-md-2 pr-2">{"Add Liquidity"}</NavLink>
-              <NavLink href={`https://exchange.sushiswapclassic.org/#/swap?inputCurrency=${poolsData[0].token_0.contract_address}&outputCurrency=${poolsData[0].token_1.contract_address}`} target="_blank" rel="noopener noreferrer" className="px-2">{"Trade"}</NavLink>
+              <NavLink href={dexData.liquidity_url.replace('{token_0}', poolsData[0].token_0.contract_address).replace('{token_1}', poolsData[0].token_1.contract_address)} target="_blank" rel="noopener noreferrer" className="pl-0 pl-md-2 pr-2">{"Add Liquidity"}</NavLink>
+              <NavLink href={dexData.swap_url.replace('{token_0}', poolsData[0].token_0.contract_address).replace('{token_1}', poolsData[0].token_1.contract_address)} target="_blank" rel="noopener noreferrer" className="px-2">{"Trade"}</NavLink>
             </>
           )}
-          <NavLink href={`https://etherscan.io/address/${address}`} target="_blank" rel="noopener noreferrer" className="px-2">{"Etherscan"}</NavLink>
+          <NavLink href={`${dexData.explorer.url}${dexData.explorer.address_route.replace('{address}', address)}`} target="_blank" rel="noopener noreferrer" className="px-2">{dexData.explorer.title}</NavLink>
         </Col>
       </Row>
       {loaded && ecosystemData && ecosystemData[0] && (
@@ -410,11 +414,11 @@ const Pool = props => {
                     {/* each token information */}
                     <CardHeader>
                       <div className="d-flex align-items-center">
-                        <Link to={`/tokens/${poolData[`token_${iToken}`].contract_address}`}>
+                        <Link to={`/${dexData.dex_name}/tokens/${poolData[`token_${iToken}`].contract_address}`}>
                           <img src={poolData[`token_${iToken}`].logo_url} alt="" className="avatar token mb-0 mr-2" />
                         </Link>
                         <div className="mr-2">
-                          <Link to={`/tokens/${poolData[`token_${iToken}`].contract_address}`}>
+                          <Link to={`/${dexData.dex_name}/tokens/${poolData[`token_${iToken}`].contract_address}`}>
                             <span className="mr-2">{poolData[`token_${iToken}`].contract_name}</span>
                             <Badge color="dark" className="ml-0" style={{ fontSize: '.75rem', fontWeight: 400 }}>{poolData[`token_${iToken}`].contract_ticker_symbol}</Badge>
                           </Link>
